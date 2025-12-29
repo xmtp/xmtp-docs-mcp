@@ -93,14 +93,14 @@ const GetChunkSchema = {
 
 type GetChunkArgs = z.infer<z.ZodObject<typeof GetChunkSchema>>;
 
-async function main() {
+export async function startServer() {
   const docsText = await loadDocsText();
   const chunks = chunkMarkdownish(docsText);
   const byId = new Map(chunks.map((c) => [c.id, c]));
 
   const server = new McpServer({
     name: "xmtp-docs-mcp",
-    version: "0.1.0",
+    version: "1.0.0",
   });
 
   server.tool("search_xmtp_docs", SearchSchema, async (args: SearchArgs) => {
@@ -116,7 +116,6 @@ async function main() {
       id: c.id,
       title: c.title,
       score: s,
-      // return a short preview so the model can decide whether to fetch the chunk
       preview: c.text.length > 400 ? c.text.slice(0, 400) + "…" : c.text,
     }));
 
@@ -158,13 +157,14 @@ async function main() {
     };
   });
 
-  // stdio transport: client spawns this process and talks JSON-RPC over stdin/stdout
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main().catch((err) => {
-  // Important: write errors to stderr so stdout stays clean for MCP
-  console.error(err);
-  process.exit(1);
-});
+// Keep `npm run dev` working (runs when executed directly)
+if (process.argv[1] && import.meta.url.endsWith(process.argv[1])) {
+  startServer().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
