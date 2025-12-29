@@ -6,34 +6,59 @@ This project is intended as an **internal beta**. It provides structured, querya
 
 ## Quickstart for Claude Code
 
-Add the MCP server to Claude Code using `npx`:
+1. Add the MCP server to Claude Code using `npx`:
 
-```bash
-claude mcp add --transport stdio xmtp-docs -- npx -y github:xmtp/xmtp-docs-mcp
-```
+   ```bash
+   claude mcp add --transport stdio xmtp-docs -- npx -y github:xmtp/xmtp-docs-mcp
+   ```
 
-Then start Claude Code:
+2. Start Claude Code:
 
-```bash
-claude
-```
+   ```bash
+   claude
+   ```
 
-Inside Claude Code, run:
+3. Inside Claude Code, run:
 
-```bash
-/mcp
-```
+   ```bash
+   /mcp
+   ```
 
-You should see the `xmtp-docs` server and its tools listed.
+You should see the `xmtp-docs` server and [its tools](#mcp-tools) listed.
 
-### MCP tools
+## Quickstart for Cursor (per-project)
 
-You don’t call these tools yourself. After you add the MCP to your AI tool, it will automatically use these xmtp-docs tools as needed to answer questions about XMTP.
+1. In the root of your repo, create a file at:
 
-- `search_xmtp_docs(query, limit)`
-  Search XMTP docs and return the most relevant chunks.
-- `get_xmtp_doc_chunk(id, maxChars)`
-  Fetch a specific documentation chunk by id.
+   ```bash
+   mkdir -p .cursor
+   touch .cursor/mcp.json
+   ```
+
+2.	Add this configuration to .cursor/mcp.json:
+
+   ```json
+   {
+     "mcpServers": {
+       "xmtp-docs": {
+         "command": "npx",
+         "args": ["-y", "github:xmtp/xmtp-docs-mcp"]
+       }
+     }
+   }
+   ```
+
+   > [!TIP]
+   > If Cursor doesn’t recognize `mcpServers` in your version, try `mcp_servers` as the top-level key instead.
+
+3.	Restart Cursor.
+
+## MCP tools
+
+After you add the MCP to your AI tool, it will use these xmtp-docs tools as needed to answer questions about XMTP.
+
+- `search_xmtp_docs(query, limit)`: Search XMTP docs and return the most relevant chunks.
+- `get_xmtp_doc_chunk(id, maxChars)`: Fetch a specific documentation chunk by id.
 
 ## Docs source
 
