@@ -53,6 +53,8 @@ You should see the `xmtp-docs` server and [its tools](#mcp-tools) listed.
 
 3.	Restart Cursor.
 
+4. Select a Claude-based agent (such as Sonnet) for reliable MCP-backed answers. Some agents may not invoke MCP tools.
+
 ## MCP tools
 
 After you add the MCP to your AI tool, it will use these xmtp-docs tools as needed to answer questions about XMTP.
