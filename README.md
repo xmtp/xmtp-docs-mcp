@@ -1,4 +1,4 @@
-# XMTP Docs MCP (internal beta)
+# XMTP docs MCP (internal beta)
 
 A lightweight, **docs-only MCP server** that exposes XMTP documentation as searchable tools for MCP-compatible clients like **Claude Code**.
 
@@ -24,11 +24,11 @@ This project is intended as an **internal beta**. It provides structured, querya
    /mcp
    ```
 
-You should see the `xmtp-docs` server and [its tools](#mcp-tools) listed.
+You should see the `xmtp-docs` server and its [tool endpoints](#tool-endpoints) listed.
 
 ## Quickstart for Cursor (per-project)
 
-1. In the root of your repo, create a file at:
+1. In the root of your project repo where you want to use the XMTP docs MCP (e.g., my-chat-app repo), create a file at:
 
    ```bash
    mkdir -p .cursor
@@ -55,16 +55,9 @@ You should see the `xmtp-docs` server and [its tools](#mcp-tools) listed.
 
 4. Select a Claude-based agent (such as Sonnet) for reliable MCP-backed answers. Some agents may not invoke MCP tools.
 
-## MCP tools
-
-After you add the MCP to your AI tool, it will use these xmtp-docs tools as needed to answer questions about XMTP.
-
-- `search_xmtp_docs(query, limit)`: Search XMTP docs and return the most relevant chunks.
-- `get_xmtp_doc_chunk(id, maxChars)`: Fetch a specific documentation chunk by id.
-
 ## Docs source
 
-By default, the server loads the full XMTP LLM docs bundle: https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-full.txt
+By default, the server loads the full XMTP LLM docs bundle covering how to build chat apps and agents: https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-full.txt
 
 You can override this with environment variables:
 
@@ -73,7 +66,101 @@ You can override this with environment variables:
 
 These values are set as environment variables in the MCP configuration (for example, in `.mcp.json` when using Claude Code).
 
-For other doc bundles, see [Build with LLMs](https://docs.xmtp.org/chat-apps/intro/build-with-llms).
+- For chat app-specific docs, you can use https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-chat-apps.txt
+- For agent-specific docs, you can use https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-agents.txt
+
+## Fork this for your own docs
+
+This server is designed as a **template for technical documentation teams** that want to provide MCP servers for their own documentation. If you maintain technical docs and want to make them queryable by LLM clients, you can fork this repo and point it at your own documentation.
+
+### What you need
+
+**A docs bundle** in plain text or markdown format (like `llms-full.txt`).
+
+- Should be structured with markdown headings (`#`, `##`, `###`) for best chunking
+- Can be hosted on GitHub, your docs site, or served locally
+- See XMTP's [generate_llms_full.py](https://github.com/xmtp/docs-xmtp-org/blob/main/llms/generate_llms_full.py) for an example script that generates a docs bundle from a docs site
+
+### Fork setup
+
+1. Fork this repository to `your-org/your-docs-mcp`
+
+2. Update `package.json`:
+
+   ```json
+   {
+     "name": "your-docs-mcp",
+     "description": "Docs-only MCP server for YourProduct documentation"
+   }
+   ```
+
+3. Update the default URL in `src/index.ts`:
+
+   ```typescript
+   const DEFAULT_DOC_URL =
+     "https://your-domain.com/path/to/your-docs.txt";
+   ```
+
+4. Update `src/index.ts` to customize the server name:
+
+   ```typescript
+   const server = new McpServer({
+     name: "your-docs-mcp",
+     version: "1.0.0",
+   });
+   ```
+
+5. Build:
+   ```bash
+   npm install
+   npm run build
+   ```
+
+6. Publish to your repo
+
+## How it's built
+
+This MCP server is a lightweight, single-file implementation built on the official Model Context Protocol SDK. Here's how the key components work together.
+
+### Core components
+
+#### MCP server framework
+
+- Built on [`@modelcontextprotocol/sdk`](https://github.com/modelcontextprotocol/sdk) — the official MCP SDK from Anthropic
+- Uses `StdioServerTransport` for communication via standard input/output, making it compatible with any MCP client
+- Registered as a CLI tool via `bin` in package.json, enabling `npx` execution
+
+#### Schema validation
+
+- Uses [Zod](https://github.com/colinhacks/zod) for runtime validation of tool parameters
+- Type-safe schemas ensure correct inputs for both `search_xmtp_docs` and `get_xmtp_doc_chunk` tools
+
+#### Document loading (src/index.ts:65-79)
+
+- Fetches XMTP docs from a remote URL (default: `llms-full.txt` from docs-xmtp-org)
+- Supports local file override via `XMTP_DOC_PATH` environment variable
+- Loads documentation once at startup and keeps it in memory
+
+#### Document chunking (src/index.ts:15-45)
+
+- Splits documentation text into searchable chunks based on markdown headings (`#`, `##`, `###`, etc.)
+- Each chunk gets a unique numeric ID and retains its section title
+- Simple, deterministic algorithm that preserves document structure
+
+#### Search algorithm (src/index.ts:47-63)
+
+- Keyword-based scoring that counts query occurrences in chunk title + text
+- Supports both full query phrases and individual tokens
+- Returns top N results sorted by relevance score
+
+### Tool endpoints
+
+The server exposes two MCP tools that LLM clients can invoke:
+
+1. **`search_xmtp_docs`** — Returns ranked search results with previews
+2. **`get_xmtp_doc_chunk`** — Fetches full content of a specific chunk by ID
+
+Both tools use Zod schemas for parameter validation and return JSON-formatted responses.
 
 ## Local development
 
