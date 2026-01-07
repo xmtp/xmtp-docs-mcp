@@ -1,4 +1,4 @@
-# XMTP docs MCP (beta)
+# XMTP docs MCP
 
 A lightweight, **docs-only MCP server** that exposes XMTP documentation as searchable tools for MCP-compatible clients like **Claude Code**.
 
