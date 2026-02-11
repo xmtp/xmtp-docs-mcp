@@ -2,7 +2,7 @@
 // XMTP Docs MCP Server
 // =============================================================================
 // This file is the brain of the MCP server. It does three main things:
-// 1. Loads XMTP documentation from a URL or local file
+// 1. Loads XMTP documentation from the DEFAULT_DOC_URL
 // 2. Splits the docs into searchable chunks (sections)
 // 3. Exposes two tools that AI assistants can use to search and read the docs
 // =============================================================================
@@ -32,7 +32,7 @@ type Chunk = {
 // CONFIGURATION
 // -----------------------------------------------------------------------------
 
-/** Default URL to fetch XMTP docs from if no override is provided */
+/** URL to fetch XMTP docs from */
 const DEFAULT_DOC_URL =
   "https://docs.xmtp.org/llms/llms-full.txt";
 
