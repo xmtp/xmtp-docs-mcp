@@ -83,7 +83,7 @@ You should see the `xmtp-docs` server and its [tool endpoints](#tool-endpoints) 
 
 ## Docs source
 
-By default, the server loads the full XMTP LLM docs bundle covering how to build chat apps and agents: https://docs.xmtp.org/llms/llms-full.txt
+The server loads the full XMTP LLM docs bundle covering how to build chat apps and agents: https://docs.xmtp.org/llms/llms-full.txt
 
 ## Fork this for your own docs
 
@@ -110,10 +110,10 @@ This server is designed as a **template for technical documentation teams** that
    }
    ```
 
-3. Update the default URL in `src/index.ts`:
+3. Update the URL in `src/index.ts`:
 
    ```typescript
-   const DEFAULT_DOC_URL = "https://your-domain.com/path/to/your-docs.txt";
+   const DOC_URL = "https://your-domain.com/path/to/your-docs.txt";
    ```
 
 4. Update `src/index.ts` to customize the server name:
@@ -163,19 +163,17 @@ This MCP server is a lightweight, single-file implementation built on the offici
 - Uses [Zod](https://github.com/colinhacks/zod) for runtime validation of tool parameters
 - Type-safe schemas ensure correct inputs for both `search_xmtp_docs` and `get_xmtp_doc_chunk` tools
 
-#### Document loading (src/index.ts:65-79)
+#### Document loading
 
-- Fetches XMTP docs from a remote URL (default: `llms-full.txt` from docs-xmtp-org)
-- Supports local file override via `XMTP_DOC_PATH` environment variable
-- Loads documentation once at startup and keeps it in memory
+- Fetches XMTP docs from `DOC_URL` at startup and keeps them in memory
 
-#### Document chunking (src/index.ts:15-45)
+#### Document chunking
 
 - Splits documentation text into searchable chunks based on markdown headings (`#`, `##`, `###`, etc.)
 - Each chunk gets a unique numeric ID and retains its section title
 - Simple, deterministic algorithm that preserves document structure
 
-#### Search algorithm (src/index.ts:47-63)
+#### Search algorithm
 
 - Keyword-based scoring that counts query occurrences in chunk title + text
 - Supports both full query phrases and individual tokens

@@ -2,7 +2,7 @@
 // XMTP Docs MCP Server
 // =============================================================================
 // This file is the brain of the MCP server. It does three main things:
-// 1. Loads XMTP documentation from the DEFAULT_DOC_URL
+// 1. Loads XMTP documentation from the DOC_URL
 // 2. Splits the docs into searchable chunks (sections)
 // 3. Exposes two tools that AI assistants can use to search and read the docs
 // =============================================================================
@@ -33,7 +33,7 @@ type Chunk = {
 // -----------------------------------------------------------------------------
 
 /** URL to fetch XMTP docs from */
-const DEFAULT_DOC_URL =
+const DOC_URL =
   "https://docs.xmtp.org/llms/llms-full.txt";
 
 // -----------------------------------------------------------------------------
@@ -129,9 +129,9 @@ function scoreChunk(q: string, chunk: Chunk): number {
  * Fetches the documentation text from the default XMTP docs URL.
  */
 async function loadDocsText(): Promise<string> {
-  const res = await fetch(DEFAULT_DOC_URL);
+  const res = await fetch(DOC_URL);
   if (!res.ok) {
-    throw new Error(`Failed to fetch docs from ${DEFAULT_DOC_URL} (${res.status})`);
+    throw new Error(`Failed to fetch docs from ${DOC_URL} (${res.status})`);
   }
   return await res.text();
 }
@@ -211,7 +211,7 @@ export async function startServer() {
           type: "text",
           text: JSON.stringify(
             {
-              source: DEFAULT_DOC_URL,
+              source: DOC_URL,
               totalChunks: chunks.length,
               results,
             },
