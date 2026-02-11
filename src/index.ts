@@ -32,7 +32,7 @@ type Chunk = {
 // CONFIGURATION
 // -----------------------------------------------------------------------------
 
-/** Default URL to fetch XMTP docs from if no override is provided */
+/** URL to fetch XMTP docs from */
 const DEFAULT_DOC_URL =
   "https://docs.xmtp.org/llms/llms-full.txt";
 
