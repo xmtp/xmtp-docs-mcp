@@ -83,17 +83,7 @@ You should see the `xmtp-docs` server and its [tool endpoints](#tool-endpoints) 
 
 ## Docs source
 
-By default, the server loads the full XMTP LLM docs bundle covering how to build chat apps and agents: https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-full.txt
-
-You can override this with environment variables:
-
-- `XMTP_DOC_URL`: Load docs from a custom URL
-- `XMTP_DOC_PATH`: Load docs from a local file
-
-These values are set as environment variables in the MCP configuration (for example, in `.mcp.json` when using Claude Code).
-
-- For chat app-specific docs, you can use https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-chat-apps.txt
-- For agent-specific docs, you can use https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-agents.txt
+By default, the server loads the full XMTP LLM docs bundle covering how to build chat apps and agents: https://docs.xmtp.org/llms/llms-full.txt
 
 ## Fork this for your own docs
 

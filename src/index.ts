@@ -13,7 +13,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"; // The MCP protocol framework
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"; // Handles communication via stdin/stdout
 import { z } from "zod"; // Validates that tool inputs are correct
-import * as fs from "node:fs/promises"; // For reading local files
 
 // -----------------------------------------------------------------------------
 // TYPES - Defines the shape of our data
@@ -35,7 +34,7 @@ type Chunk = {
 
 /** Default URL to fetch XMTP docs from if no override is provided */
 const DEFAULT_DOC_URL =
-  "https://raw.githubusercontent.com/xmtp/docs-xmtp-org/main/llms/llms-full.txt";
+  "https://docs.xmtp.org/llms/llms-full.txt";
 
 // -----------------------------------------------------------------------------
 // DOCUMENT CHUNKING
@@ -127,25 +126,12 @@ function scoreChunk(q: string, chunk: Chunk): number {
 // -----------------------------------------------------------------------------
 
 /**
- * Fetches the documentation text from either a local file or URL.
- *
- * Priority:
- * 1. If XMTP_DOC_PATH env var is set, read from that local file
- * 2. If XMTP_DOC_URL env var is set, fetch from that URL
- * 3. Otherwise, fetch from the default XMTP docs URL
+ * Fetches the documentation text from the default XMTP docs URL.
  */
 async function loadDocsText(): Promise<string> {
-  // Option 1: Local file (useful for development or custom docs)
-  const localPath = process.env.XMTP_DOC_PATH?.trim();
-  if (localPath) {
-    return await fs.readFile(localPath, "utf8");
-  }
-
-  // Option 2 & 3: Fetch from URL (custom or default)
-  const url = process.env.XMTP_DOC_URL?.trim() || DEFAULT_DOC_URL;
-  const res = await fetch(url);
+  const res = await fetch(DEFAULT_DOC_URL);
   if (!res.ok) {
-    throw new Error(`Failed to fetch docs from ${url} (${res.status})`);
+    throw new Error(`Failed to fetch docs from ${DEFAULT_DOC_URL} (${res.status})`);
   }
   return await res.text();
 }
@@ -225,9 +211,7 @@ export async function startServer() {
           type: "text",
           text: JSON.stringify(
             {
-              source: process.env.XMTP_DOC_PATH
-                ? `file:${process.env.XMTP_DOC_PATH}`
-                : process.env.XMTP_DOC_URL || DEFAULT_DOC_URL,
+              source: DEFAULT_DOC_URL,
               totalChunks: chunks.length,
               results,
             },
